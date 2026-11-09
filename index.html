@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KAILAS Ecotech's interactive digital twin for a waste-to-energy biorefinery, converting market refuse into clean energy and organic manure.">
+  <title>KAILAS Ecotech — Universal Waste-to-Energy Biorefinery Digital Twin</title>
+  <link rel="icon" type="image/svg+xml" href="kailas-mark.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --kesar: #e38c45;
+      --kesar-deep: #c4390f;
+      --kesar-glow: rgba(227, 140, 69, 0.28);
+      --shwet-ivory: #FDF5E4;
+      --shwet-card: #121926;
+      --shwet-surface: #182232;
+      --harit: #138808;
+      --harit-deep: #0e6027;
+      --harit-glow: rgba(19, 136, 8, 0.25);
+      --chakra-blue: #0f2b5c;
+      --chakra-blue-bright: #38bdf8;
+      --haldi-gold: #e9c96f;
+      --bg-dark: #080d15;
+      --border-royal: #2a3b54;
+      --border-gold: #d4a745;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --font-royal: 'Cinzel', serif;
+      --font-body: 'IBM Plex Sans', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+    .tricolor-stripe {
+      height: 4px;
+      width: 100%;
+      background: linear-gradient(90deg, #FF671F 0%, #FF671F 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #046A38 66.6%, #046A38 100%);
+    }
+    .app-shell {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .royal-card {
+      background: var(--shwet-card);
+      border: 1px solid var(--border-royal);
+      border-radius: 4px;
+      padding: 18px;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    }
+    .jharokha-arch {
+      border-top: 3px solid var(--kesar);
+      position: relative;
+    }
+    .jharokha-arch::before {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 180px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--haldi-gold), transparent);
+    }
+    .badge-royal {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      height: 24px;
+      padding: 0 10px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      border-radius: 2px;
+      background: rgba(227, 140, 69, 0.15);
+      color: var(--kesar);
+      border: 1px solid var(--kesar);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-green {
+      background: rgba(19, 136, 8, 0.15);
+      color: #4ade80;
+      border-color: #4ade80;
+    }
+    .badge-gold {
+      background: rgba(233, 201, 111, 0.15);
+      color: var(--haldi-gold);
+      border-color: var(--haldi-gold);
+    }
+    .badge-blue {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--chakra-blue-bright);
+      border-color: var(--chakra-blue-bright);
+    }
+    .pill-group {
+      display: inline-flex;
+      background: var(--shwet-surface);
+      border: 1px solid var(--border-royal);
+      padding: 2px;
+      border-radius: 4px;
+    }
+    .pill-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-weight: 600;
+      border-radius: 2px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .pill-btn:hover { color: #fff; }
+    .pill-btn.active {
+      background: linear-gradient(135deg, var(--kesar), var(--kesar-deep));
+      color: #fff;
+      box-shadow: 0 2px 8px var(--kesar-glow);
+    }
+    .pill-btn.active-green {
+      background: linear-gradient(135deg, var(--harit), #198038);
+      color: #fff;
+      box-shadow: 0 2px 8px var(--harit-glow);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-body);
+      font-size: 0.8125rem;
+      height: 36px;
+      padding: 0 14px;
+      cursor: pointer;
+      border: 1px solid var(--border-royal);
+      color: var(--text-main);
+      background: var(--shwet-surface);
+      border-radius: 3px;
+      transition: all 0.2s ease;
+    }
+    .btn:hover {
+      background: #222f44;
+      border-color: var(--kesar);
+      color: #fff;
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, #FF671F, #c4390f);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      box-shadow: 0 0 12px var(--kesar-glow);
+    }
+    .btn-gold:hover { background: linear-gradient(135deg, #ff7a38, #d94516); }
+    .btn-walkthrough {
+      background: linear-gradient(135deg, var(--chakra-blue), #1e40af);
+      color: #fff;
+      border: 1px solid var(--chakra-blue-bright);
+      font-weight: 600;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.25);
+    }
+    .grid-2col {
+      display: grid;
+      grid-template-columns: minmax(0, 1.85fr) minmax(0, 1.15fr);
+      gap: 16px;
+    }
+    .viewport-box {
+      position: relative;
+      background: #090e17;
+      height: 560px;
+      border: 1px solid var(--border-royal);
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: grab;
+    }
+    .viewport-box:active { cursor: grabbing; }
+    #canvas-3d { width: 100%; height: 100%; }
+    .hud-chip {
+      background: rgba(14, 21, 33, 0.92);
+      border: 1px solid rgba(227, 140, 69, 0.4);
+      backdrop-filter: blur(6px);
+      padding: 5px 10px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      border-radius: 2px;
+      color: var(--shwet-ivory);
+    }
+    .control-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .control-inputs {
+      display: grid;
+      grid-template-columns: 1fr 110px;
+      gap: 8px;
+      align-items: center;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      background: var(--shwet-surface);
+      outline: none;
+      border-radius: 2px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: var(--kesar);
+      cursor: pointer;
+      border-radius: 2px;
+      box-shadow: 0 0 8px var(--kesar);
+    }
+    input[type="number"] {
+      height: 34px;
+      background: var(--shwet-surface);
+      border: 1px solid var(--border-royal);
+      color: var(--shwet-ivory);
+      font-family: var(--font-mono);
+      padding: 0 8px;
+      text-align: right;
+      border-radius: 2px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+    .kpi-card {
+      background: var(--shwet-card);
+      border: 1px solid var(--border-royal);
+      padding: 14px;
+      border-left: 3px solid var(--border-royal);
+      border-radius: 3px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .kpi-card:hover { transform: translateY(-2px); }
+    .kpi-card.kesar-border { border-left-color: var(--kesar); }
+    .kpi-card.green-border { border-left-color: var(--harit); }
+    .kpi-card.gold-border { border-left-color: var(--haldi-gold); }
+    .kpi-card.blue-border { border-left-color: var(--chakra-blue-bright); }
+    .kpi-val {
+      font-family: var(--font-mono);
+      font-size: 1.7rem;
+      font-weight: 600;
+      color: #fff;
+      margin: 4px 0;
+    }
+    .table-royal {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .table-royal th {
+      background: var(--shwet-surface);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      padding: 7px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-royal);
+      color: var(--haldi-gold);
+    }
+    .table-royal td {
+      padding: 7px 10px;
+      border-bottom: 1px solid rgba(42, 59, 84, 0.6);
+    }
+    .table-royal td.num {
+      text-align: right;
+      font-family: var(--font-mono);
+    }
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border-royal);
+      background: var(--shwet-surface);
+      overflow-x: auto;
+      padding: 2px 2px 0 2px;
+    }
+    .tab-btn {
+      padding: 9px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover { color: #fff; }
+    .tab-btn.active {
+      color: var(--kesar);
+      border-bottom-color: var(--kesar);
+      background: var(--shwet-card);
+      font-weight: 600;
+    }
+    @media (max-width: 1024px) {
+      .grid-2col { grid-template-columns: 1fr; }
+      .viewport-box { height: 440px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="tricolor-stripe"></div>
+  <div class="app-shell">
+    <header class="royal-card jharokha-arch">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 14px;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
+            <span class="badge-royal">SEVA INNOVATION CHALLENGE 2026</span>
+            <span class="badge-royal badge-green">THE REAL ENGINEERS &bull; SLRTCE</span>
+            <span class="badge-royal badge-gold">SWACHH BHARAT &bull; CIRCULAR MANDI</span>
+            <span class="badge-royal badge-blue" id="scale-badge-head">PILOT SKID ARCHITECTURE (10x10 FT)</span>
+          </div>
+          <h1 style="font-family: var(--font-royal); font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.3rem); margin: 0; line-height: 1.15; letter-spacing: 0.02em;">
+            <span style="color: var(--kesar);">KAILAS</span> : <span style="color: var(--shwet-ivory);">कचरा नहीं बेकार</span>
+          </h1>
+          <div style="font-family: var(--font-body); font-weight: 600; color: var(--haldi-gold); font-size: 0.95rem; margin-top: 4px;">
+            &ldquo;अलग करो, ऊर्जा बनाओ, रोज़गार बढ़ाओ!&rdquo; &mdash; 100% Mass-Energy Closed Loop Biorefinery
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; max-width: 95ch;">
+            Mechanical pre-sorting and anaerobic digestion system converting municipal market refuse on-site into clean electricity (CHP), vehicle-grade Bio-CNG (CBG), and FCO-compliant organic manure. Mentored by Dr. Abhijeet Samantha (HOD Mechanical, SLRTCE).
+          </p>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--haldi-gold); font-weight: 600;">MEASUREMENT UNIT:</span>
+            <div class="pill-group">
+              <button class="pill-btn active" id="btn-unit-kg" onclick="setMassUnit('kg')">KG / DAY</button>
+              <button class="pill-btn" id="btn-unit-tpd" onclick="setMassUnit('tpd')">TONNES / DAY</button>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button class="btn btn-walkthrough" id="btn-walk" onclick="start60sWalkthrough()">
+              <i data-lucide="play" style="width: 14px; height: 14px;"></i> ▶ 60s Judge Walkthrough
+            </button>
+            <button class="btn btn-gold" onclick="exportDataCSV()">
+              <i data-lucide="download" style="width: 14px; height: 14px;"></i> Export Telemetry
+            </button>
+            <button class="btn" onclick="resetDefaults()">
+              <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i> Reset
+            </button>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border-royal); overflow-x: auto; align-items: center;">
+        <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); white-space: nowrap;">EVENT &amp; SCALE PRESETS:</span>
+        <button class="btn" id="preset-micro" onclick="loadScalePreset(50)">1. Micro Demo / Canteen Burner (50 kg/d)</button>
+        <button class="btn btn-gold" id="preset-seva" onclick="loadScalePreset(1000)">2. SEVA ₹8.5L Pilot (1,000 kg/d = 1 TPD)</button>
+        <button class="btn" id="preset-eureka" onclick="loadScalePreset(5000)">3. IIT-B Eureka! Ward Hub (5,000 kg/d = 5 TPD)</button>
+        <button class="btn" id="preset-mega" onclick="loadScalePreset(100000)">4. Banas-Suzuki Mega Refinery (100 TPD)</button>
+      </div>
+    </header>
+    <div class="grid-2col">
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="royal-card" style="padding: 0;">
+          <div class="viewport-box" id="viewport-box">
+            <div id="canvas-3d"></div>
+            <div style="position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; pointer-events: none; z-index: 10;">
+              <div class="hud-chip">
+                <span>INSPECTING: </span><span id="hud-unit-name" style="color: var(--kesar); font-weight: 600;">COMPLETE 100 TPD BIOREFINERY CAMPUS</span>
+              </div>
+              <div class="hud-chip" style="pointer-events: auto;">
+                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                  <input type="checkbox" id="flow-chk" checked onchange="toggleParticles(this.checked)">
+                  <span>FLOW ANIMATION</span>
+                </label>
+              </div>
+            </div>
+            <div style="position: absolute; bottom: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; pointer-events: none; z-index: 10;">
+              <div class="hud-chip">
+                <span>ACTIVE ENERGY MODE: </span><span id="hud-energy-mode" style="color: #4ade80; font-weight: 600;">50% CHP + 50% CBG</span>
+              </div>
+              <div class="hud-chip" id="hud-status-line" style="color: var(--haldi-gold);">
+                DRAG: ROTATE &bull; SCROLL: ZOOM &bull; CLICK UNITS TO INSPECT
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; background: var(--shwet-surface); border-top: 1px solid var(--border-royal);">
+            <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); align-self: center; padding: 0 4px;">HOTSPOTS:</span>
+            <button class="pill-btn active" id="btn-cam-0" onclick="switchCamera(0)">0. Campus Overview</button>
+            <button class="pill-btn" id="btn-cam-1" onclick="switchCamera(1)">1. Trommel &amp; Pulper Bay</button>
+            <button class="pill-btn" id="btn-cam-2" onclick="switchCamera(2)">2. CSTR Digester (37&deg;C)</button>
+            <button class="pill-btn" id="btn-cam-3" onclick="switchCamera(3)">3. H&sub2;S Scrubber Column</button>
+            <button class="pill-btn" id="btn-cam-4" onclick="switchCamera(4)">4. CHP GenSet Power</button>
+            <button class="pill-btn" id="btn-cam-5" onclick="switchCamera(5)">5. Bio-CNG Spheres</button>
+            <button class="pill-btn" id="btn-cam-6" onclick="switchCamera(6)">6. FCO Bio-Manure Yard</button>
+          </div>
+        </div>
+        <div class="royal-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-royal); padding-bottom: 6px; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--shwet-ivory); font-weight: 600;">PROCESS KINETICS ENGINE &bull; REAL-TIME MASS BALANCE</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted);">PATHWAY:</span>
+              <div class="pill-group">
+                <button class="pill-btn" id="btn-mode-chp" onclick="setDispatch(100)">&flash; 100% CHP ELECTRICITY</button>
+                <button class="pill-btn active" id="btn-mode-hybrid" onclick="setDispatch(50)">&xcirc; 50/50 HYBRID</button>
+                <button class="pill-btn" id="btn-mode-cbg" onclick="setDispatch(0)">&star; 100% ONLY BIO-CNG (CBG)</button>
+              </div>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px;">
+            <div class="control-row">
+              <div style="display: flex; justify-content: space-between;">
+                <label for="feed-slider" style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--shwet-ivory); font-weight: 600;">Daily Waste Inflow</label>
+                <span id="disp-feed-val" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--kesar); font-weight: 600;">1,000 kg/day</span>
+              </div>
+              <div class="control-inputs">
+                <input type="range" id="feed-slider" min="10" max="10000" step="10" value="1000" oninput="onFeedInput(this.value)">
+                <input type="number" id="feed-num" min="10" max="150000" step="10" value="1000" oninput="onFeedInput(this.value)">
+              </div>
+              <span style="font-size: 0.72rem; color: var(--text-muted);" id="disp-feed-sub">= 1.00 Metric Tonnes/day (10x10 sq ft platform)</span>
+            </div>
+            <div class="control-row">
+              <div style="display: flex; justify-content: space-between;">
+                <label for="temp-slider" style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--shwet-ivory); font-weight: 600;">Digester Temp (Heating Loop)</label>
+                <span id="disp-temp-val" style="font-family: var(--font-mono); font-size: 0.75rem; color: #4ade80; font-weight: 600;">37.0 &deg;C</span>
+              </div>
+              <div class="control-inputs">
+                <input type="range" id="temp-slider" min="25.0" max="45.0" step="0.5" value="37.0" oninput="onTempInput(this.value)">
+                <input type="number" id="temp-num" min="25.0" max="45.0" step="0.5" value="37.0" oninput="onTempInput(this.value)">
+              </div>
+              <span style="font-size: 0.72rem; color: var(--text-muted);">Strict 37.0&deg;C mesophilic loop maintained via thermal jacket</span>
+            </div>
+            <div class="control-row">
+              <div style="display: flex; justify-content: space-between;">
+                <label for="dispatch-slider" style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--shwet-ivory); font-weight: 600;">Energy Dispatch Split</label>
+                <span id="disp-dispatch-val" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--haldi-gold); font-weight: 600;">50% CHP / 50% CBG</span>
+              </div>
+              <div class="control-inputs">
+                <input type="range" id="dispatch-slider" min="0" max="100" step="5" value="50" oninput="onDispatchSlider(this.value)">
+                <input type="number" id="dispatch-num" min="0" max="100" step="5" value="50" oninput="onDispatchSlider(this.value)">
+              </div>
+              <span style="font-size: 0.72rem; color: var(--text-muted);">0% = All CBG Bottling | 100% = All Clean Electricity</span>
+            </div>
+            <div class="control-row">
+              <div style="display: flex; justify-content: space-between;">
+                <label for="h2s-slider" style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--shwet-ivory); font-weight: 600;">Raw Gas H&sub2;S Inflow</label>
+                <span id="disp-h2s-val" style="font-family: var(--font-mono); font-size: 0.75rem; color: #f87171; font-weight: 600;">1,800 ppm</span>
+              </div>
+              <div class="control-inputs">
+                <input type="range" id="h2s-slider" min="400" max="3000" step="50" value="1800" oninput="onH2SInput(this.value)">
+                <input type="number" id="h2s-num" min="400" max="3000" step="50" value="1800" oninput="onH2SInput(this.value)">
+              </div>
+              <span style="font-size: 0.72rem; color: var(--text-muted);">Dual-stage iron sponge scrubber captures 99.6% down to &lt; 8 ppm</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="royal-card jharokha-arch">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-royal); padding-bottom: 6px; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span class="badge-royal" id="inspect-tag">SUB-ASSEMBLY 02</span>
+              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--haldi-gold);" id="inspect-code">CSTR-BOLTED-DIGESTER</span>
+            </div>
+            <span class="badge-royal badge-green">OPERATIONAL</span>
+          </div>
+          <h2 id="inspect-title" style="font-family: var(--font-royal); font-size: 1.25rem; font-weight: 600; margin: 0 0 4px 0; color: #fff;">6,000 m&sup3; Continuous Anaerobic Digester</h2>
+          <p id="inspect-desc" style="color: var(--text-muted); font-size: 0.83rem; min-height: 48px;">
+            Fused-glass bolted steel reactor with continuous mechanical agitation and external jacketed heat exchange loop maintaining strict 37.0&deg;C mesophilic conditions for peak methanogenic kinetics.
+          </p>
+          <table class="table-royal" style="margin-bottom: 10px;">
+            <thead>
+              <tr>
+                <th>Technical Metric</th>
+                <th>Rated Design</th>
+                <th>Live Telemetry</th>
+              </tr>
+            </thead>
+            <tbody id="inspect-tbody"></tbody>
+          </table>
+          <div class="royal-card" style="background: var(--shwet-surface); padding: 10px;">
+            <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--kesar); margin-bottom: 2px;">ENGINEERING LEAD:</div>
+            <div id="inspect-lead" style="font-size: 0.82rem; font-weight: 600; color: #fff;">Sachin (CAD &amp; Fluidics) &bull; Harsh (Kinetics Loop)</div>
+          </div>
+        </div>
+        <div class="royal-card">
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-royal); padding-bottom: 6px; margin-bottom: 8px;">
+            <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--haldi-gold); font-weight: 600;">UNICORN UNIT ECONOMICS &amp; PAYBACK SIMULATOR</span>
+            <span class="badge-royal badge-gold" id="fin-payback-badge">PAYBACK: 11.3 MONTHS</span>
+          </div>
+          <table class="table-royal" style="margin-bottom: 10px;">
+            <tbody>
+              <tr>
+                <td><strong>Capital Setup Expenditure (CAPEX)</strong></td>
+                <td class="num" id="fin-capex" style="color: #fff; font-weight: 600;">&#x20b9; 8.50 Lakhs</td>
+              </tr>
+              <tr>
+                <td><strong>Monthly BMC Transport Savings (&#x20b9;2,050/T)</strong></td>
+                <td class="num" id="fin-haulage" style="color: #4ade80; font-weight: 600;">&#x20b9; 61,500 / mo</td>
+              </tr>
+              <tr>
+                <td><strong>Monthly FCO Bio-Manure Sales (&#x20b9;4.5/kg)</strong></td>
+                <td class="num" id="fin-manure" style="color: var(--kesar); font-weight: 600;">&#x20b9; 24,975 / mo</td>
+              </tr>
+              <tr>
+                <td><strong>Monthly Clean Energy Revenue (Power/CBG)</strong></td>
+                <td class="num" id="fin-energy" style="color: var(--chakra-blue-bright); font-weight: 600;">&#x20b9; 18,200 / mo</td>
+              </tr>
+              <tr style="background: var(--shwet-surface);">
+                <td><strong>Total Monthly Value Created (ARR Basis)</strong></td>
+                <td class="num" id="fin-total-monthly" style="color: var(--haldi-gold); font-weight: 700; font-size: 0.95rem;">&#x20b9; 1.05 Lakhs / mo</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="royal-card" style="background: rgba(15, 43, 92, 0.4); border-color: rgba(56, 189, 248, 0.3); padding: 10px;">
+            <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--chakra-blue-bright); margin-bottom: 2px;">SWACHH SURVEKSHAN &amp; CARBON CREDITS:</div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 4px;">
+              <span>CO&sub2;e Greenhouse Abatement:</span>
+              <strong id="fin-co2" style="color: #4ade80;">631 MT CO&sub2;e / yr</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 2px;">
+              <span>Carbon Credit Value (@ &#x20b9;850/credit):</span>
+              <strong id="fin-carbon-val" style="color: var(--haldi-gold);">&#x20b9; 5.36 Lakhs / yr</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <section>
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+        <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--haldi-gold); font-weight: 600;">LIVE FACILITY TELEMETRY &amp; MULTI-STREAM RESOURCE YIELDS</span>
+        <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted);" id="kpi-scale-label">SEVA PILOT BASELINE (1,000 KG/D = 1 TPD)</span>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card kesar-border">
+          <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--kesar);">MUNICIPAL REFUSE DIVERTED</div>
+          <div class="kpi-val" id="kpi-divert-val">365 MT/yr</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);" id="kpi-divert-sub">Exceeds Slide 5 target of 350+ MT in Year 1</div>
+        </div>
+        <div class="kpi-card gold-border">
+          <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--haldi-gold);">RAW BIOGAS GENERATION</div>
+          <div class="kpi-val" id="kpi-biogas-val">84.2 Nm&sup3;/d</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);" id="kpi-biogas-sub">52.6 Nm&sup3;/d Methane (62.5% CH&sub4;)</div>
+        </div>
+        <div class="kpi-card blue-border">
+          <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--chakra-blue-bright);">CLEAN ELECTRICITY (CHP)</div>
+          <div class="kpi-val" id="kpi-power-val">2.5 kW</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);" id="kpi-power-sub">Powers 18-20 LED market streetlights</div>
+        </div>
+        <div class="kpi-card green-border">
+          <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #4ade80;">BIO-CNG (CBG) BOTTLED</div>
+          <div class="kpi-val" id="kpi-cbg-val">19 kg/day</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);" id="kpi-cbg-sub">Replaces 24 L diesel in compactor fleet</div>
+        </div>
+        <div class="kpi-card gold-border">
+          <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--haldi-gold);">FCO BIO-FERTILISER YIELD</div>
+          <div class="kpi-val" id="kpi-manure-val">185 kg/day</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);" id="kpi-manure-sub">Certified FCO organic biogenic manure</div>
+        </div>
+        <div class="kpi-card green-border">
+          <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #4ade80;">ANNUAL CIVIC SAVINGS</div>
+          <div class="kpi-val" id="kpi-savings-val">&#x20b9; 7.48 L</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">75% reduction in municipal haulage</div>
+        </div>
+      </div>
+    </section>
+    <section class="royal-card">
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tab-btn-team" onclick="showTab('team')">THE REAL ENGINEERS TEAM</button>
+        <button class="tab-btn" id="tab-btn-seva" onclick="showTab('seva')">SEVA CHALLENGE 7 STEPS &bull; &#x20b9;8.5L</button>
+        <button class="tab-btn" id="tab-btn-inspire" onclick="showTab('inspire')">BANAS-SUZUKI BENCHMARK &bull; MRF</button>
+        <button class="tab-btn" id="tab-btn-pathways" onclick="showTab('pathways')">TWO ENERGY PATHWAYS (CHP VS CBG)</button>
+        <button class="tab-btn" id="tab-btn-onepage" onclick="showTab('onepage')">SLIDE 16 &bull; OFFICIAL 1-PAGE PROPOSAL</button>
+      </div>
+      <div id="tab-content-team" style="padding-top: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <h3 style="margin: 0; font-family: var(--font-royal); font-size: 1.15rem; color: #fff;">The Real Engineers &bull; Multidisciplinary Student Innovators</h3>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">Department of Mechanical and Civil Engineering &bull; Shree L. R. Tiwari College of Engineering (SLRTCE), Mira Road / Mumbai</span>
+          </div>
+          <span class="badge-royal badge-green">MENTOR: DR. ABHIJEET SAMANTHA (HOD MECHANICAL ENGINEERING)</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px;">
+          <div class="royal-card" style="background: var(--shwet-surface);">
+            <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--kesar); font-weight: 600;">TEAM LEADER &bull; MECHANICAL DESIGN</span>
+            <h4 style="margin: 4px 0; color: #fff; font-size: 1.05rem;">Sachin</h4>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px;">FY B.Tech Mechanical Engineering | Fluid Mechanics &amp; CAD Assembly</div>
+            <p style="font-size: 0.8rem; margin: 0; color: var(--shwet-ivory);">Designed 3D modular CAD assemblies, fluidic flow piping, and compact skid packaging within a 10x10 sq ft open municipal platform.</p>
+          </div>
+          <div class="royal-card" style="background: var(--shwet-surface);">
+            <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--kesar); font-weight: 600;">FABRICATION &amp; MATERIAL LEAD</span>
+            <h4 style="margin: 4px 0; color: #fff; font-size: 1.05rem;">Diljit</h4>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px;">FY B.Tech Mechanical Engineering | Structural Optimization &amp; Cost-Sourcing</div>
+            <p style="font-size: 0.8rem; margin: 0; color: var(--shwet-ivory);">Manages stainless bolted steel reactor container fabrication, structural optimization, and local vendor cost-sourcing.</p>
+          </div>
+          <div class="royal-card" style="background: var(--shwet-surface);">
+            <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--kesar); font-weight: 600;">PROCESS &amp; SYSTEMS ENGINEER</span>
+            <h4 style="margin: 4px 0; color: #fff; font-size: 1.05rem;">Harsh</h4>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px;">FY B.Tech Mechanical Engineering | Gas-Air Mixer Loop Calculations</div>
+            <p style="font-size: 0.8rem; margin: 0; color: var(--shwet-ivory);">Calculated the stoichiometric methane loops, dual-stage moisture condensation traps, and 37&deg;C mesophilic thermal balance.</p>
+          </div>
+          <div class="royal-card" style="background: var(--shwet-surface);">
+            <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--kesar); font-weight: 600;">OPERATIONS &amp; TESTING LEAD</span>
+            <h4 style="margin: 4px 0; color: #fff; font-size: 1.05rem;">Daksh</h4>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px;">FY B.Tech Mechanical Engineering | Data Tracking &amp; System Automation</div>
+            <p style="font-size: 0.8rem; margin: 0; color: var(--shwet-ivory);">Oversees telemetry instrumentation, gas-purity auditing, pressure relief calibrations, and automated sensor logging.</p>
+          </div>
+          <div class="royal-card" style="background: var(--shwet-surface);">
+            <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--kesar); font-weight: 600;">LOGISTICS &amp; STAKEHOLDER COORDINATOR</span>
+            <h4 style="margin: 4px 0; color: #fff; font-size: 1.05rem;">Jaidurga</h4>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px;">FY B.Tech Civil Engineering | Ward Coordination &amp; Supply Auditing</div>
+            <p style="font-size: 0.8rem; margin: 0; color: var(--shwet-ivory);">Coordinates with BMC ward officials, market traders associations, feedstock collection audits, and bio-manure off-take logistics.</p>
+          </div>
+        </div>
+      </div>
+      <div id="tab-content-seva" style="display: none; padding-top: 14px;">
+        <h4 style="margin: 0 0 10px 0; color: #fff; font-family: var(--font-royal);">Seven Steps to Win a &#x20b9;10 Lakh Work Order (SEEID Maharashtra)</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+          <div class="royal-card" style="background: var(--shwet-surface);">
+            <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--kesar); font-weight: 600;">STEP 1 &bull; IDENTIFY THE PROBLEM</span>
+            <p style="font-size: 0.82rem; margin-top: 4px; color: var(--shwet-ivory);"><strong>Who loses what:</strong> Mumbai dumps 6,500 MT/day refuse. Malad/Borivali mandi vendors lose 12&ndash;15 kg unsold veggies daily because of no cold storage, creating open rotting, hazardous pests, and toxic leachate.</p>
+          </div>
+          <div class="royal-card" style="background: var(--shwet-surface);">
+            <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--kesar); font-weight: 600;">STEP 2 &bull; ONE-LINE SOLUTION</span>
+            <p style="font-size: 0.82rem; margin-top: 4px; color: var(--shwet-ivory);"><strong>One clear line:</strong> A modular 10x10 sq ft on-site mini digester that mechanically sorts and converts market waste into 5 kW power and organic manure so that landfill transportation stops.</p>
+          </div>
+          <div class="royal-card" style="background: var(--shwet-surface);">
+            <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--haldi-gold); font-weight: 600;">STEP 3 &bull; METHOD &amp; HONEST FAILURE</span>
+            <p style="font-size: 0.82rem; margin-top: 4px; color: var(--shwet-ivory);"><strong>The failure &amp; fix:</strong> Our first rough prototype trommel mesh clogged violently within 40 minutes when handling fibrous banana stems and cornhusks. We retrofitted high-shear counter-rotating cutter knives and water-jet assist.</p>
+          </div>
+          <div class="royal-card" style="background: var(--shwet-surface);">
+            <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--kesar); font-weight: 600;">STEP 4 &bull; NUMBERS-BASED IMPACT</span>
+            <p style="font-size: 0.82rem; margin-top: 4px; color: var(--shwet-ivory);"><strong>Before vs After:</strong> Conventional BMC waste disposal costs &#x20b9;2,500+ per ton in logistics and tipping. Our localized processing costs &#x20b9;450/tonne, slashing ward sanitation expenditure by 75% while diverting 350+ MT/year.</p>
+          </div>
+          <div class="royal-card" style="background: var(--shwet-surface);">
+            <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--kesar); font-weight: 600;">STEP 5 &bull; GOVERNMENT OWNER</span>
+            <p style="font-size: 0.82rem; margin-top: 4px; color: var(--shwet-ivory);"><strong>Client department:</strong> Chief Engineer (SWM), Brihanmumbai Municipal Corporation (BMC), Assistant Municipal Commissioner (P/North &amp; R/Central Ward), and MSInS Maharashtra.</p>
+          </div>
+          <div class="royal-card" style="background: var(--shwet-surface);">
+            <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--kesar); font-weight: 600;">STEP 6 &bull; SCALE IN CIRCLES</span>
+            <p style="font-size: 0.82rem; margin-top: 4px; color: var(--shwet-ivory);"><strong>Expansion curve:</strong> 1 site (Malad Mandi 10x10 platform) &rarr; 5&ndash;10 sites (Western Suburbs Mandis) &rarr; All 24 BMC Municipal Wards &rarr; MMRDA / TMC / NMMC.</p>
+          </div>
+          <div class="royal-card" style="grid-column: 1 / -1; background: #132235; border-color: var(--haldi-gold);">
+            <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #4ade80; font-weight: 600;">STEP 7 &bull; WORK OUT THE MONEY (&#x20b9;8.5 LAKH SETUP &bull; WELL UNDER &#x20b9;10L)</span>
+            <div style="display: flex; gap: 24px; flex-wrap: wrap; margin-top: 6px; font-size: 0.82rem; color: var(--shwet-ivory);">
+              <span>&bull; Raw structural fabrication, valves, &amp; tank framework: <strong>&#x20b9; 6.5 Lakhs</strong></span>
+              <span>&bull; Trommel mesh &amp; H&sub2;S scrubber assembly: <strong>&#x20b9; 1.2 Lakhs</strong></span>
+              <span>&bull; Sensors, valves &amp; 5kW Gen-Set hookup: <strong>&#x20b9; 0.8 Lakhs</strong></span>
+              <span>&bull; <strong>Total Pilot Execution: &#x20b9; 8.5 Lakhs</strong> (Comfortable &#x20b9;1.5L buffer under &#x20b9;10 Lakh work order limit)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="tab-content-inspire" style="display: none; padding-top: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+          <h4 style="margin: 0; color: #fff; font-family: var(--font-royal);">Real-World Industrial Benchmark: Banas&ndash;Suzuki (Agthala, Gujarat)</h4>
+          <span class="badge-royal badge-gold">INSPIRE 2026 BENCHMARK</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 14px;">
+          <div class="royal-card" style="background: var(--shwet-surface); border-left: 3px solid var(--kesar);">
+            <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--kesar);">BANAS-SUZUKI BENCHMARK</div>
+            <div style="font-size: 1.5rem; font-weight: 600; color: #fff; margin: 4px 0;">100 TPD Dung &rarr; 1.5 TPD CBG</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">A landmark project demonstrating large-scale cow-dung-to-CBG production, proving biological waste-to-energy viability in India.</p>
+          </div>
+          <div class="royal-card" style="background: var(--shwet-surface); border-left: 3px solid #4ade80;">
+            <div style="font-family: var(--font-mono); font-size: 0.7rem; color: #4ade80;">OUR DIFFERENTIATION (THE REAL ENGINEERS)</div>
+            <div style="font-size: 1.5rem; font-weight: 600; color: #fff; margin: 4px 0;">Municipal MRF + Biogas + Power</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">While Banas-Suzuki relies solely on cow dung for CBG, our system incorporates <strong>mechanical municipal waste sorting</strong> to diversify feedstock, producing both clean electricity and Bio-CNG.</p>
+          </div>
+        </div>
+        <h5 style="margin: 10px 0 6px 0; color: var(--haldi-gold); font-family: var(--font-royal);">&ldquo;Separate First, Recover Next&rdquo; &mdash; 4-Stream MRF Cascade</h5>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
+          <div class="royal-card" style="background: var(--shwet-surface);">
+            <strong style="color: var(--kesar);">1. Mechanical Sorting:</strong><br>
+            <span style="font-size: 0.8rem; color: var(--shwet-ivory);">Trommel screen (size separation), Magnetic separator (ferrous metals), Air classifier (light plastics).</span>
+          </div>
+          <div class="royal-card" style="background: var(--shwet-surface);">
+            <strong style="color: var(--haldi-gold);">2. Recyclables to Industry:</strong><br>
+            <span style="font-size: 0.8rem; color: var(--shwet-ivory);">Clean PET bottles, aluminium cans, and glass diverted straight to authorized recycling aggregators.</span>
+          </div>
+          <div class="royal-card" style="background: var(--shwet-surface);">
+            <strong style="color: #f87171;">3. Refuse Derived Fuel (RDF):</strong><br>
+            <span style="font-size: 0.8rem; color: var(--shwet-ivory);">Non-recyclable combustible dry fraction baled and supplied as RDF to cement kilns for co-processing.</span>
+          </div>
+          <div class="royal-card" style="background: var(--shwet-surface);">
+            <strong style="color: #4ade80;">4. Clean Wet Organics:</strong><br>
+            <span style="font-size: 0.8rem; color: var(--shwet-ivory);">Vegetable refuse enters our anaerobic digester for methane and FCO bio-manure production.</span>
+          </div>
+        </div>
+      </div>
+      <div id="tab-content-pathways" style="display: none; padding-top: 14px;">
+        <h4 style="margin: 0 0 10px 0; color: #fff; font-family: var(--font-royal);">Two Energy Pathways: Flexible Dispatch Architecture</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px;">
+          <div class="royal-card" style="background: var(--shwet-surface); border-top: 3px solid var(--kesar);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--kesar); font-weight: 600;">OPTION 01: ELECTRICITY GENERATION (CHP)</span>
+              <button class="pill-btn active" onclick="setDispatch(100)">ACTIVATE 100% CHP</button>
+            </div>
+            <p style="font-size: 0.83rem; margin: 8px 0; color: var(--shwet-ivory);">Cleaned biogas fuels a Combined Heat &amp; Power (CHP) / Dual-Fuel engine to produce decentralized electrical power and recover jacket heat locally.</p>
+            <div style="font-size: 0.78rem; color: var(--text-muted); background: var(--shwet-card); padding: 8px;">
+              <strong>Best For:</strong> Decentralized night market power, civic streetlights (35-40 LED lamps), EV compactor charging posts, and digester 37&deg;C mesophilic heating.
+            </div>
+          </div>
+          <div class="royal-card" style="background: var(--shwet-surface); border-top: 3px solid #4ade80;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #4ade80; font-weight: 600;">OPTION 02: COMPRESSED BIO-GAS (CBG)</span>
+              <button class="pill-btn active-green" onclick="setDispatch(0)">ACTIVATE 100% CBG</button>
+            </div>
+            <p style="font-size: 0.83rem; margin: 8px 0; color: var(--shwet-ivory);">Upgrading and compressing gas to 200&ndash;250 bar to produce Bio-CNG (CBG) &mdash; a direct green alternative to fossil CNG for vehicles.</p>
+            <div style="font-size: 0.78rem; color: var(--text-muted); background: var(--shwet-card); padding: 8px;">
+              <strong>Best For:</strong> SATAT scheme fuel, BMC garbage truck fueling, displacement of fossil diesel, and gas-grid injection (PNGRB 2026 compliance).
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="tab-content-onepage" style="display: none; padding-top: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+          <h4 style="margin: 0; color: #fff; font-family: var(--font-royal);">Put It Together: Official One-Page Project Proposal (Slide 16)</h4>
+          <span class="badge-royal badge-green">READY FOR SUBMISSION</span>
+        </div>
+        <table class="table-royal">
+          <tbody>
+            <tr>
+              <td style="width: 25%; font-family: var(--font-mono); color: var(--kesar);">01 Project Name &amp; Team</td>
+              <td><strong>KAILAS (Kachra Nahi Bekaar)</strong> &mdash; The Real Engineers (Sachin, Diljit, Harsh, Daksh, Jaidurga | Mentor: Dr. Abhijeet Samantha, SLRTCE)</td>
+            </tr>
+            <tr>
+              <td style="font-family: var(--font-mono); color: var(--kesar);">02 Problem Statement</td>
+              <td>Mumbai collects 6,500 MT/day waste; local mandi vendors throw 12&ndash;15 kg wet waste daily per stall due to lack of on-site recovery, creating toxic landfill rotting.</td>
+            </tr>
+            <tr>
+              <td style="font-family: var(--font-mono); color: var(--kesar);">03 Stakeholder Evidence</td>
+              <td>BMC Year Book 2026 (40%+ organic fraction); field interviews with Malad/Borivali vegetable vendors and ward sanitation staff.</td>
+            </tr>
+            <tr>
+              <td style="font-family: var(--font-mono); color: var(--kesar);">04 One-Line Solution</td>
+              <td>A modular 10x10 sq ft on-site mini digester that mechanically sorts and converts market waste into 5 kW power and organic manure so that landfill transit stops.</td>
+            </tr>
+            <tr>
+              <td style="font-family: var(--font-mono); color: var(--kesar);">05 Methodology</td>
+              <td>Rotary perforated trommel pre-sorting &rarr; anaerobic sealed digestion (37&deg;C) &rarr; dual-stage moisture/iron-sponge scrubbing &rarr; 5kW generator / CBG storage.</td>
+            </tr>
+            <tr>
+              <td style="font-family: var(--font-mono); color: var(--haldi-gold);">06 One Failure &amp; The Fix</td>
+              <td><strong>Failure:</strong> Fibrous cornhusks and banana stems bound the rotating mesh in 40 minutes. <strong>Fix:</strong> High-torque counter-shear cutter knives and water-jet assist.</td>
+            </tr>
+            <tr>
+              <td style="font-family: var(--font-mono); color: var(--kesar);">07 Impact (Before vs After)</td>
+              <td>Before: &#x20b9;2,500+/ton haulage cost. After: &#x20b9;450/ton on-site processing (75% savings), 350+ MT diverted in Year 1, 4 direct green livelihoods.</td>
+            </tr>
+            <tr>
+              <td style="font-family: var(--font-mono); color: var(--kesar);">08 Related Govt &amp; Local Office</td>
+              <td>BMC Solid Waste Management (SWM) Dept, P/North &amp; R/Central Ward Office, MSInS Maharashtra.</td>
+            </tr>
+            <tr>
+              <td style="font-family: var(--font-mono); color: var(--kesar);">09 Scale-up Plan</td>
+              <td>1 pilot site (10x10 platform) &rarr; 5&ndash;10 Western Suburb mandis &rarr; All 24 Greater Mumbai municipal wards &rarr; MMRDA / TMC.</td>
+            </tr>
+            <tr>
+              <td style="font-family: var(--font-mono); color: var(--kesar);">10 Financial Details</td>
+              <td>CAPEX: &#x20b9;8.5 Lakhs (Well under &#x20b9;10 Lakh work order limit). OPEX is self-funded by biogenic manure sales (&#x20b9;4.5/kg) and avoided electricity bills.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <footer style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-top: 1px solid var(--border-royal); flex-wrap: wrap; gap: 8px;">
+      <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted);">
+        THE REAL ENGINEERS &bull; SHREE L. R. TIWARI COLLEGE OF ENGINEERING &bull; SEVA FIRST 2026
+      </div>
+      <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--kesar);">
+        LEAD CONTACT: sachinprajapati200816@gmail.com &bull; +91 8779260604
+      </div>
+    </footer>
+  </div>
+  <script>
+    const appState = {
+      feedstockKg: 1000.0,
+      massUnit: 'kg',
+      dispatchRatio: 50,
+      reactorTemp: 37.0,
+      rawH2S: 1800,
+      activeHotspot: 0,
+      particlesOn: true,
+      walkthroughRunning: false
+    };
+    const plantSubsystems = [
+      {
+        id: 0,
+        code: 'CAMPUS-OVERVIEW',
+        tag: 'PLANT OVERVIEW',
+        title: 'KAILAS 100 TPD Biorefinery Campus Layout',
+        desc: 'Integrated municipal waste processing facility comprising a high-shear hydro-pulper bay, 6,000 m&sup3; mesophilic anaerobic digester, twin-tower biological H&sub2;S scrubber, 800 kW CHP generation house, 250 bar Bio-CNG Horton storage spheres, and an FCO-compliant bio-fertiliser dewatering yard.',
+        lead: 'Sachin (System Architecture) &amp; Jaidurga (Site Civil)',
+        camPos: { x: 55, y: 48, z: 65 },
+        camTarget: { x: 0, y: 8, z: 8 },
+        getMetrics: (s) => [
+          { name: 'Total Daily Throughput', spec: '100 TPD (Design)', live: formatMass(s.feedstockKg, s.massUnit) },
+          { name: 'Active Footprint', spec: '10x10 ft to 1.5 Acre', live: (s.feedstockKg <= 1000) ? '10x10 sq ft Platform' : '1.45 Acres Campus' },
+          { name: 'Parasitic Auxiliary Load', spec: '11.8% of Gross', live: `${(calculatePowerKW(s) * 0.118).toFixed(1)} kW Aux` },
+          { name: 'Direct Green Jobs', spec: 'Local Livelihoods', live: (s.feedstockKg <= 2000) ? '4 Civic Operators' : '18 Full-time Positions' },
+          { name: 'Odour Neutralisation Index', spec: 'Negative Pressure', live: '99.8% Extraction' }
+        ]
+      },
+      {
+        id: 1,
+        code: 'HYDRO-PULPER-BAY',
+        tag: 'SUB-ASSEMBLY 01',
+        title: 'Hydro-Pulper Intake &amp; Degritting Bay',
+        desc: 'Heavy-duty automated receiving bunker fitted with variable-pitch screw feeder, high-shear hydro-pulper drum, and cyclonic degritting separator. Blends raw municipal vegetable waste into an 8&ndash;10% Total Solids pumpable organic slurry while ejecting stones, plastics, and inerts.',
+        lead: 'Sachin (Fluidics &amp; CAD) &amp; Diljit (Materials)',
+        camPos: { x: -48, y: 22, z: 32 },
+        camTarget: { x: -34, y: 6, z: 16 },
+        getMetrics: (s) => [
+          { name: 'Maceration Shear Velocity', spec: '1,450 RPM (45 kW)', live: '1,450 RPM Motor' },
+          { name: 'Inert Reject Removal Rate', spec: '3.5% of Mass', live: formatMass(s.feedstockKg * 0.035, s.massUnit) },
+          { name: 'Slurry Dry Matter (TS)', spec: '8 - 10% Solids', live: '9.2% Pumpable Slurry' },
+          { name: 'Counter-Blade Metallurgy', spec: 'Hardened SS410', live: 'Tungsten-Carbide Tips' }
+        ]
+      },
+      {
+        id: 2,
+        code: 'CSTR-6000-ANAEROBIC',
+        tag: 'SUB-ASSEMBLY 02',
+        title: '6,000 m&sup3; CSTR Digester (37&deg;C Mesophilic Loop)',
+        desc: 'Fused-glass bolted steel cylindrical anaerobic reactor with working liquid slurry volume and double-membrane biogas crown. Features multi-tier draft-tube marine impellers and an external shell-and-tube hot water heat exchanger directly coupled to the CHP exhaust thermal loop.',
+        lead: 'Harsh (Kinetics Loop) &amp; Sachin (Agitator Torque)',
+        camPos: { x: -22, y: 30, z: 18 },
+        camTarget: { x: -10, y: 10, z: -8 },
+        getMetrics: (s) => [
+          { name: 'Operating Temperature', spec: '37.0 &deg;C Mesophilic', live: `${s.reactorTemp.toFixed(1)} &deg;C (${getTempStatus(s.reactorTemp)})` },
+          { name: 'Hydraulic Retention Time', spec: '22 - 27 Days', live: '24.5 Days HRT' },
+          { name: 'Organic Loading Rate (OLR)', spec: '2.62 kg VS/m&sup3;&bull;d', live: `${((s.feedstockKg * 0.18 * 0.8) / 45).toFixed(2)} kg VS/m&sup3;&bull;d` },
+          { name: 'Methane Gas Composition', spec: '60 - 64% CH&sub4;', live: `${calculateMethanePct(s.reactorTemp).toFixed(1)}% CH&sub4;` }
+        ]
+      },
+      {
+        id: 3,
+        code: 'H2S-SCRUBBER-STAGE2',
+        tag: 'SUB-ASSEMBLY 03',
+        title: 'Dual-Stage H&sub2;S Gas Desulphurisation Column',
+        desc: 'Vertical twin-column gas sweetening installation comprising a primary biological trickling bed and secondary regenerative iron-sponge chemical reactor. Reduces highly corrosive hydrogen sulphide from 1,800 ppm to < 8 ppm, protecting engine pistons and upgrading membranes.',
+        lead: 'Harsh (Stoichiometry) &amp; Daksh (H&sub2;S Telemetry)',
+        camPos: { x: 5, y: 22, z: -2 },
+        camTarget: { x: 12, y: 9, z: -16 },
+        getMetrics: (s) => [
+          { name: 'Inlet Raw H&sub2;S Load', spec: '1,800 ppm', live: `${s.rawH2S} ppm` },
+          { name: 'Outlet Clean Gas H&sub2;S', spec: '< 8.0 ppm', live: `${(s.rawH2S * 0.0035).toFixed(1)} ppm` },
+          { name: 'Desulphurisation Capture', spec: '99.65% Efficiency', live: '99.65% Capture' },
+          { name: 'Chilled Dewpoint Condenser', spec: '3.5 &deg;C Knockout', live: '3.5 &deg;C Condenser' }
+        ]
+      },
+      {
+        id: 4,
+        code: 'CHP-800KW-GENSET',
+        tag: 'SUB-ASSEMBLY 04',
+        title: 'Combined Heat &amp; Power (CHP) Engine House',
+        desc: 'Acoustically insulated power house enclosing lean-burn reciprocating biogas genset. Generates continuous electrical power while capturing thermal exhaust through a heat recovery circuit that circulates 37&deg;C hot water to the digester heating jacket.',
+        lead: 'Sachin (Thermal Recovery) &amp; Diljit (Acoustic Skid)',
+        camPos: { x: 48, y: 22, z: 8 },
+        camTarget: { x: 34, y: 7, z: -6 },
+        getMetrics: (s) => [
+          { name: 'Continuous Electrical Power', spec: 'Clean kWe Output', live: `${calculatePowerKW(s).toFixed(1)} kWe` },
+          { name: 'Thermal Heat Recovered', spec: 'HRSG Jacket Loop', live: `${(calculatePowerKW(s) * 1.18).toFixed(1)} kWth (to 37&deg;C loop)` },
+          { name: 'Electrical Efficiency', spec: '39.5% (LHV Basis)', live: '39.5% Efficiency' },
+          { name: 'Streetlights / Fleet Support', spec: '35 lamps / 5kW', live: `${Math.round(calculatePowerKW(s) * 7.5)} LED Streetlights` }
+        ]
+      },
+      {
+        id: 5,
+        code: 'BIO-CNG-HORTON-SPHERES',
+        tag: 'SUB-ASSEMBLY 05',
+        title: 'Bio-CNG Horton Spheres &amp; Upgrading Skid',
+        desc: 'High-pressure biomethane upgrading installation featuring 3-stage hollow-fibre polymeric membrane permeation skids that purify methane to > 96%. Compressed via multi-stage compressors to 250 bar into spherical Horton gas holders for fuelling municipal refuse vehicles.',
+        lead: 'Harsh (Membrane Separation) &amp; Daksh (Pressure Testing)',
+        camPos: { x: 50, y: 24, z: 38 },
+        camTarget: { x: 36, y: 8, z: 22 },
+        getMetrics: (s) => [
+          { name: 'Methane Purity in CBG', spec: 'IS 16087 Certified', live: '96.4% CH&sub4; (CBG)' },
+          { name: 'Daily Bio-CNG Yield', spec: 'Vehicle Fuel Grade', live: `${calculateCBGkg(s).toFixed(1)} kg/day` },
+          { name: 'Operating Pressure', spec: '250 bar (g)', live: '250 bar Horton Spheres' },
+          { name: 'Equivalent Diesel Displaced', spec: '1 kg CBG &asymp; 1.25 L', live: `${(calculateCBGkg(s) * 1.25).toFixed(1)} Litres/day` }
+        ]
+      },
+      {
+        id: 6,
+        code: 'FCO-FERTILISER-YARD',
+        tag: 'SUB-ASSEMBLY 06',
+        title: 'FCO Bio-Fertiliser &amp; Digestate Curing Yard',
+        desc: 'Comprehensive solid-liquid digestate separation and curing facility. High-torque dewatering screw presses produce a nutrient-dense cake (~30% TS) that is cured in aerated windrow bunkers into FCO-certified bio-fertiliser (PROM), while liquid fraction supplies liquid fermented organic manure.',
+        lead: 'Jaidurga (Yard Civil Layout) &amp; Diljit (Press Sizing)',
+        camPos: { x: -26, y: 24, z: 46 },
+        camTarget: { x: -14, y: 5, z: 30 },
+        getMetrics: (s) => [
+          { name: 'Solid Organic Bio-Manure', spec: '18.5% of Waste Feed', live: formatMass(s.feedstockKg * 0.185, s.massUnit) },
+          { name: 'Liquid LFOM Fertilizer', spec: 'Nutrient Aqueous', live: `${(s.feedstockKg * 0.00074).toFixed(2)} m&sup3;/day` },
+          { name: 'Total Organic Carbon (TOC)', spec: 'Min 14.0% FCO Mandate', live: '18.4% (Certified Grade)' },
+          { name: 'Local Off-Take Value', spec: 'Market Selling Price', live: '&#x20b9; 4.50 / kg (&#x20b9; 4,500/MT)' }
+        ]
+      }
+    ];
+    let scene, camera, renderer;
+    let controls = {
+      isDragging: false,
+      prevMouse: { x: 0, y: 0 },
+      target: new THREE.Vector3(0, 8, 8),
+      spherical: new THREE.Spherical(95, Math.PI / 3.4, Math.PI / 4)
+    };
+    let flowParticles = [];
+    let camTween = {
+      active: false,
+      startPos: new THREE.Vector3(),
+      targetPos: new THREE.Vector3(),
+      startLook: new THREE.Vector3(),
+      targetLook: new THREE.Vector3(),
+      progress: 0,
+      duration: 45
+    };
+    function init3D() {
+      const container = document.getElementById('canvas-3d');
+      if (!container) return;
+      container.innerHTML = '';
+      const width = container.clientWidth || 800;
+      const height = container.clientHeight || 560;
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0a1019);
+      scene.fog = new THREE.FogExp2(0x0a1019, 0.0035);
+      camera = new THREE.PerspectiveCamera(45, width / height, 0.5, 1000);
+      updateCamFromSpherical();
+      renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      container.appendChild(renderer.domElement);
+      const ambLight = new THREE.AmbientLight(0xffffff, 0.8);
+      scene.add(ambLight);
+      const sun = new THREE.DirectionalLight(0xfff3e0, 1.4);
+      sun.position.set(65, 90, 50);
+      sun.castShadow = true;
+      sun.shadow.mapSize.width = 2048;
+      sun.shadow.mapSize.height = 2048;
+      scene.add(sun);
+      const blueFill = new THREE.DirectionalLight(0x38bdf8, 0.45);
+      blueFill.position.set(-60, 45, -50);
+      scene.add(blueFill);
+      buildGround();
+      buildAllStructures();
+      buildPipes();
+      setupOrbit(renderer.domElement);
+      window.addEventListener('resize', onResize);
+      animate();
+    }
+    function onResize() {
+      const container = document.getElementById('canvas-3d');
+      if (!container || !renderer || !camera) return;
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    }
+    function buildGround() {
+      const slab = new THREE.Mesh(
+        new THREE.BoxGeometry(110, 1.5, 90),
+        new THREE.MeshStandardMaterial({ color: 0x1a2433, roughness: 0.85, metalness: 0.15 })
+      );
+      slab.position.y = -0.75;
+      slab.receiveShadow = true;
+      scene.add(slab);
+      const road = new THREE.Mesh(
+        new THREE.PlaneGeometry(130, 110),
+        new THREE.MeshStandardMaterial({ color: 0x101722, roughness: 0.95 })
+      );
+      road.rotation.x = -Math.PI / 2;
+      road.position.y = -0.85;
+      road.receiveShadow = true;
+      scene.add(road);
+      const grid = new THREE.GridHelper(100, 20, 0xe38c45, 0x223247);
+      grid.position.y = 0.05;
+      scene.add(grid);
+    }
+    function buildAllStructures() {
+      const legMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.7, roughness: 0.3 });
+      const baseMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.85 });
+      const u1 = new THREE.Group();
+      const ramp = new THREE.Mesh(new THREE.BoxGeometry(14, 3, 10), new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.9 }));
+      ramp.position.set(-34, 1.5, 22);
+      ramp.castShadow = true;
+      u1.add(ramp);
+      const hopper = new THREE.Mesh(new THREE.CylinderGeometry(4.5, 2.2, 4.5, 6), new THREE.MeshStandardMaterial({ color: 0xe38c45, metalness: 0.4, roughness: 0.5 }));
+      hopper.position.set(-34, 4.5, 16);
+      hopper.castShadow = true;
+      u1.add(hopper);
+      const pulper = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 5, 16), new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.6, roughness: 0.3 }));
+      pulper.position.set(-34, 3.5, 10);
+      pulper.castShadow = true;
+      u1.add(pulper);
+      const motor = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2, 1.6), new THREE.MeshStandardMaterial({ color: 0xe9c96f, metalness: 0.7 }));
+      motor.position.set(-34, 6.8, 10);
+      u1.add(motor);
+      const cyclone = new THREE.Mesh(new THREE.ConeGeometry(1.6, 3.5, 12), new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.6 }));
+      cyclone.rotation.x = Math.PI;
+      cyclone.position.set(-27, 3.5, 12);
+      u1.add(cyclone);
+      scene.add(u1);
+      const u2 = new THREE.Group();
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(14, 14.5, 1, 32), baseMat);
+      base.position.set(-10, 0.5, -8);
+      base.receiveShadow = true;
+      u2.add(base);
+      const digester = new THREE.Mesh(new THREE.CylinderGeometry(13, 13, 15, 32), new THREE.MeshStandardMaterial({ color: 0x51637a, roughness: 0.5, metalness: 0.3 }));
+      digester.position.set(-10, 8.5, -8);
+      digester.castShadow = true;
+      u2.add(digester);
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(13.08, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.3, transparent: true, opacity: 0.94 }));
+      dome.position.set(-10, 16, -8);
+      u2.add(dome);
+      const topMotor = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.5, 2.5, 16), new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.7 }));
+      topMotor.position.set(-10, 29.5, -8);
+      u2.add(topMotor);
+      const hex = new THREE.Mesh(new THREE.BoxGeometry(4, 3, 5), new THREE.MeshStandardMaterial({ color: 0xc4390f, roughness: 0.4, metalness: 0.6 }));
+      hex.position.set(4.5, 1.5, -8);
+      u2.add(hex);
+      scene.add(u2);
+      const u3 = new THREE.Group();
+      const colMat = new THREE.MeshStandardMaterial({ color: 0xa0aec0, metalness: 0.85, roughness: 0.2 });
+      const col1 = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.8, 13, 20), colMat);
+      col1.position.set(11.5, 7.5, -16);
+      col1.castShadow = true;
+      u3.add(col1);
+      const col2 = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.8, 13, 20), colMat);
+      col2.position.set(16.5, 7.5, -16);
+      col2.castShadow = true;
+      u3.add(col2);
+      const crossDuct = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 5, 8), new THREE.MeshStandardMaterial({ color: 0x138808, metalness: 0.7 }));
+      crossDuct.rotation.z = Math.PI / 2;
+      crossDuct.position.set(14, 13, -16);
+      u3.add(crossDuct);
+      const chiller = new THREE.Mesh(new THREE.BoxGeometry(2.5, 2.8, 3), new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.5 }));
+      chiller.position.set(14, 2, -12);
+      u3.add(chiller);
+      scene.add(u3);
+      const u4 = new THREE.Group();
+      const bldg = new THREE.Mesh(new THREE.BoxGeometry(18, 8, 12), new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6, metalness: 0.3 }));
+      bldg.position.set(34, 4, -6);
+      bldg.castShadow = true;
+      u4.add(bldg);
+      const silencer = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 7, 12), legMat);
+      silencer.rotation.z = Math.PI / 2;
+      silencer.position.set(34, 9, -6);
+      u4.add(silencer);
+      const stack = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.6, 6, 12), legMat);
+      stack.position.set(34, 13, -6);
+      u4.add(stack);
+      const trans = new THREE.Mesh(new THREE.BoxGeometry(4, 3.5, 4), new THREE.MeshStandardMaterial({ color: 0xe38c45, metalness: 0.6 }));
+      trans.position.set(45, 1.75, -6);
+      u4.add(trans);
+      const engine = new THREE.Mesh(new THREE.BoxGeometry(6, 3, 3), new THREE.MeshStandardMaterial({ color: 0xe9c96f, metalness: 0.7 }));
+      engine.position.set(34, 2, -6);
+      u4.add(engine);
+      scene.add(u4);
+      const u5 = new THREE.Group();
+      const upgrSkid = new THREE.Mesh(new THREE.BoxGeometry(7, 4, 5), new THREE.MeshStandardMaterial({ color: 0x138808, metalness: 0.6 }));
+      upgrSkid.position.set(24, 2, 22);
+      u5.add(upgrSkid);
+      const sphereMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, metalness: 0.3, roughness: 0.2 });
+      const sph1 = new THREE.Mesh(new THREE.SphereGeometry(5.2, 32, 24), sphereMat);
+      sph1.position.set(36, 9.5, 17);
+      sph1.castShadow = true;
+      u5.add(sph1);
+      addSphereLegs(u5, 36, 17, 5.2);
+      const sph2 = new THREE.Mesh(new THREE.SphereGeometry(5.2, 32, 24), sphereMat);
+      sph2.position.set(36, 9.5, 29);
+      sph2.castShadow = true;
+      u5.add(sph2);
+      addSphereLegs(u5, 36, 29, 5.2);
+      const canopy = new THREE.Mesh(new THREE.BoxGeometry(6, 0.4, 8), new THREE.MeshStandardMaterial({ color: 0xe38c45 }));
+      canopy.position.set(45, 5, 23);
+      u5.add(canopy);
+      scene.add(u5);
+      const u6 = new THREE.Group();
+      const dewater = new THREE.Mesh(new THREE.BoxGeometry(8, 4.5, 6), new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.7 }));
+      dewater.position.set(-6, 2.25, 25);
+      u6.add(dewater);
+      const conv = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.3, 7), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
+      conv.position.set(-6, 3, 30);
+      conv.rotation.x = Math.PI / 8;
+      u6.add(conv);
+      const manureMat = new THREE.MeshStandardMaterial({ color: 0x3d271d, roughness: 0.95 });
+      const bayWallMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.8 });
+      [-18, -14, -10].forEach(bx => {
+        const wall = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.8, 10), bayWallMat);
+        wall.position.set(bx, 0.9, 36);
+        u6.add(wall);
+        const pile = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.5, 8.5, 8), manureMat);
+        pile.rotation.x = Math.PI / 2;
+        pile.position.set(bx + 2, 0.8, 36);
+        u6.add(pile);
+      });
+      const lfomTank = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.5, 7, 16), new THREE.MeshStandardMaterial({ color: 0x0e6027, metalness: 0.5 }));
+      lfomTank.rotation.z = Math.PI / 2;
+      lfomTank.position.set(4, 2.5, 34);
+      u6.add(lfomTank);
+      scene.add(u6);
+    }
+    function addSphereLegs(group, cx, cz, radius) {
+      const legGeo = new THREE.CylinderGeometry(0.2, 0.25, 9.5, 8);
+      const legMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.6 });
+      for (let i = 0; i < 6; i++) {
+        const theta = (i / 6) * Math.PI * 2;
+        const leg = new THREE.Mesh(legGeo, legMat);
+        leg.position.set(cx + Math.cos(theta) * (radius * 0.75), 4.75, cz + Math.sin(theta) * (radius * 0.75));
+        group.add(leg);
+      }
+    }
+    function buildPipes() {
+      const runs = [
+        { pts: [new THREE.Vector3(-34, 3, 10), new THREE.Vector3(-34, 4, -8), new THREE.Vector3(-23, 4, -8)], color: 0x4ade80, count: 20 },
+        { pts: [new THREE.Vector3(25, 2.5, -6), new THREE.Vector3(15, 2.5, -6), new THREE.Vector3(5, 2.5, -8)], color: 0xe38c45, count: 18 },
+        { pts: [new THREE.Vector3(-6, 26, -8), new THREE.Vector3(4, 26, -8), new THREE.Vector3(11.5, 13, -16)], color: 0xe9c96f, count: 24 },
+        { pts: [new THREE.Vector3(14, 2, -12), new THREE.Vector3(25, 2, -12), new THREE.Vector3(25, 2, 20)], color: 0x38bdf8, count: 22 },
+        { pts: [new THREE.Vector3(26, 2, 26), new THREE.Vector3(36, 2, 26), new THREE.Vector3(36, 5, 20)], color: 0x34d399, count: 18 },
+        { pts: [new THREE.Vector3(-10, 1.5, 5), new THREE.Vector3(-6, 1.5, 5), new THREE.Vector3(-6, 2, 22)], color: 0xa0aec0, count: 16 }
+      ];
+      flowParticles = [];
+      runs.forEach(r => {
+        const curve = new THREE.CatmullRomCurve3(r.pts);
+        const tube = new THREE.TubeGeometry(curve, 32, 0.28, 8, false);
+        scene.add(new THREE.Mesh(tube, new THREE.MeshStandardMaterial({ color: r.color, metalness: 0.6 })));
+        const pGeo = new THREE.SphereGeometry(0.24, 8, 8);
+        const pMat = new THREE.MeshBasicMaterial({ color: r.color });
+        for (let i = 0; i < r.count; i++) {
+          const mesh = new THREE.Mesh(pGeo, pMat);
+          scene.add(mesh);
+          flowParticles.push({ mesh, curve, offset: i / r.count, speed: 0.009 });
+        }
+      });
+    }
+    function setupOrbit(dom) {
+      dom.addEventListener('pointerdown', (e) => {
+        controls.isDragging = true;
+        controls.prevMouse = { x: e.clientX, y: e.clientY };
+      });
+      dom.addEventListener('pointermove', (e) => {
+        if (!controls.isDragging) return;
+        const dx = e.clientX - controls.prevMouse.x;
+        const dy = e.clientY - controls.prevMouse.y;
+        controls.spherical.theta -= dx * 0.008;
+        controls.spherical.phi -= dy * 0.008;
+        controls.spherical.phi = Math.max(0.1, Math.min(Math.PI / 2.05, controls.spherical.phi));
+        updateCamFromSpherical();
+        controls.prevMouse = { x: e.clientX, y: e.clientY };
+      });
+      window.addEventListener('pointerup', () => { controls.isDragging = false; });
+      dom.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        controls.spherical.radius += e.deltaY * 0.06;
+        controls.spherical.radius = Math.max(15, Math.min(160, controls.spherical.radius));
+        updateCamFromSpherical();
+      }, { passive: false });
+    }
+    function updateCamFromSpherical() {
+      if (!camera || !controls.spherical || !controls.target) return;
+      camera.position.setFromSpherical(controls.spherical).add(controls.target);
+      camera.lookAt(controls.target);
+    }
+    function animate() {
+      requestAnimationFrame(animate);
+      if (camTween.active) {
+        camTween.progress++;
+        const t = Math.min(1, camTween.progress / camTween.duration);
+        const ease = 1 - Math.pow(1 - t, 3);
+        camera.position.lerpVectors(camTween.startPos, camTween.targetPos, ease);
+        controls.target.lerpVectors(camTween.startLook, camTween.targetLook, ease);
+        camera.lookAt(controls.target);
+        if (t >= 1) {
+          camTween.active = false;
+          controls.spherical.setFromVector3(camera.position.clone().sub(controls.target));
+        }
+      }
+      if (appState.particlesOn) {
+        flowParticles.forEach(p => {
+          p.offset = (p.offset + p.speed) % 1;
+          p.mesh.position.copy(p.curve.getPointAt(p.offset));
+          p.mesh.visible = true;
+        });
+      } else {
+        flowParticles.forEach(p => { p.mesh.visible = false; });
+      }
+      renderer.render(scene, camera);
+    }
+    function switchCamera(idx) {
+      appState.activeHotspot = idx;
+      const sub = plantSubsystems[idx];
+      if (!sub) return;
+      camTween.active = true;
+      camTween.progress = 0;
+      camTween.startPos.copy(camera.position);
+      camTween.targetPos.set(sub.camPos.x, sub.camPos.y, sub.camPos.z);
+      camTween.startLook.copy(controls.target);
+      camTween.targetLook.set(sub.camTarget.x, sub.camTarget.y, sub.camTarget.z);
+      for (let i = 0; i <= 6; i++) {
+        const btn = document.getElementById(`btn-cam-${i}`);
+        if (btn) btn.classList.toggle('active', i === idx);
+      }
+      document.getElementById('hud-unit-name').textContent = sub.title.toUpperCase();
+      renderInspector(idx);
+    }
+    function start60sWalkthrough() {
+      if (appState.walkthroughRunning) return;
+      appState.walkthroughRunning = true;
+      const statusLine = document.getElementById('hud-status-line');
+      const btn = document.getElementById('btn-walk');
+      btn.style.opacity = '0.6';
+      let step = 0;
+      const steps = [
+        { idx: 1, text: 'UNIT 01: Hydro-pulper intake & trommel pre-sorting' },
+        { idx: 2, text: 'UNIT 02: 6,000 m&sup3; Anaerobic Digester (37.0&deg;C mesophilic loop)' },
+        { idx: 3, text: 'UNIT 03: Dual-stage biological & iron-sponge H&sub2;S scrubber' },
+        { idx: 4, text: 'UNIT 04: Combined Heat & Power (CHP) engine house' },
+        { idx: 5, text: 'UNIT 05: Bio-CNG Horton spheres & 250 bar vehicle fueling' },
+        { idx: 6, text: 'UNIT 06: FCO-certified organic manure dewatering & windrows' },
+        { idx: 0, text: 'COMPLETE: Fully integrated circular biorefinery campus' }
+      ];
+      function stepNext() {
+        if (step >= steps.length) {
+          appState.walkthroughRunning = false;
+          btn.style.opacity = '1';
+          statusLine.textContent = 'WALKTHROUGH COMPLETE &bull; AUDIT READY';
+          setTimeout(() => { statusLine.textContent = 'DRAG: ROTATE &bull; SCROLL: ZOOM'; }, 3000);
+          return;
+        }
+        const current = steps[step];
+        switchCamera(current.idx);
+        statusLine.textContent = `&blacktriangleright; ${current.text}`;
+        step++;
+        setTimeout(stepNext, 5500);
+      }
+      stepNext();
+    }
+    function calculateMethanePct(temp) {
+      const delta = Math.abs(temp - 37.0);
+      return Math.max(50.0, Math.min(64.5, 62.5 - Math.pow(delta, 1.4) * 0.45));
+    }
+    function calculateBiogasNm3(s) {
+      const vsKg = s.feedstockKg * 0.18 * 0.8;
+      const kTemp = Math.exp(-0.5 * Math.pow((s.reactorTemp - 37.0) / 4.2, 2));
+      return vsKg * (0.585 * kTemp);
+    }
+    function calculatePowerKW(s) {
+      const biogas = calculateBiogasNm3(s);
+      const chpBiogas = biogas * (s.dispatchRatio / 100);
+      const ch4Fraction = calculateMethanePct(s.reactorTemp) / 100;
+      const kw = (chpBiogas / 24) * ch4Fraction * 9.97 * 0.38;
+      return Math.max(0, kw * 3.6);
+    }
+    function calculateCBGkg(s) {
+      const biogas = calculateBiogasNm3(s);
+      const cbgBiogas = biogas * (1 - s.dispatchRatio / 100);
+      const ch4Fraction = calculateMethanePct(s.reactorTemp) / 100;
+      return Math.max(0, cbgBiogas * ch4Fraction * 0.98 * 0.717);
+    }
+    function calcAnnualSavings(s) {
+      const annualMT = (s.feedstockKg * 365) / 1000;
+      return (annualMT * 2050) / 100000;
+    }
+    function formatMass(kgVal, unit) {
+      if (unit === 'tpd') return `${(kgVal / 1000).toFixed(2)} TPD`;
+      return `${Math.round(kgVal).toLocaleString('en-IN')} kg/day`;
+    }
+    function getTempStatus(temp) {
+      if (temp >= 36.5 && temp <= 37.5) return 'OPTIMAL MESOPHILIC';
+      if (temp < 32) return 'STALL RISK';
+      return 'SUB-OPTIMAL';
+    }
+    function updateAll() {
+      const s = appState;
+      document.getElementById('disp-feed-val').textContent = formatMass(s.feedstockKg, s.massUnit);
+      document.getElementById('disp-feed-sub').textContent = `= ${(s.feedstockKg / 1000).toFixed(2)} Metric Tonnes/day (${(s.feedstockKg <= 1000) ? '10x10 sq ft platform' : 'Ward Regional Hub'})`;
+      document.getElementById('disp-temp-val').textContent = `${s.reactorTemp.toFixed(1)} °C`;
+      document.getElementById('disp-h2s-val').textContent = `${s.rawH2S} ppm`;
+      document.getElementById('disp-dispatch-val').textContent = `${s.dispatchRatio}% CHP / ${100 - s.dispatchRatio}% CBG`;
+      let modeTxt = '50% CHP + 50% CBG';
+      if (s.dispatchRatio === 100) modeTxt = '⚡ 100% ONLY ELECTRICITY (CHP)';
+      else if (s.dispatchRatio === 0) modeTxt = '⛽ 100% ONLY BIO-CNG (CBG)';
+      else modeTxt = `${s.dispatchRatio}% CHP + ${100 - s.dispatchRatio}% CBG`;
+      document.getElementById('hud-energy-mode').textContent = modeTxt;
+      const annualMT = (s.feedstockKg * 365) / 1000;
+      const totalBiogas = calculateBiogasNm3(s);
+      const ch4Pct = calculateMethanePct(s.reactorTemp);
+      const powerKW = calculatePowerKW(s);
+      const cbgKg = calculateCBGkg(s);
+      const manureDaily = s.feedstockKg * 0.185;
+      const savingsL = calcAnnualSavings(s);
+      document.getElementById('kpi-divert-val').textContent = `${annualMT.toFixed(0)} MT/yr`;
+      document.getElementById('kpi-divert-sub').textContent = (annualMT >= 350) ? '✓ Exceeds Slide 5 target of 350+ MT in Year 1' : 'Pilot scale diversion';
+      document.getElementById('kpi-biogas-val').textContent = `${totalBiogas.toFixed(1)} Nm³/d`;
+      document.getElementById('kpi-biogas-sub').textContent = `${(totalBiogas * (ch4Pct / 100)).toFixed(1)} Nm³/d Methane (${ch4Pct.toFixed(1)}% CH₄)`;
+      document.getElementById('kpi-power-val').textContent = `${powerKW.toFixed(1)} kW`;
+      document.getElementById('kpi-power-sub').textContent = `Powers ${Math.round(powerKW * 7.5)} LED streetlights`;
+      document.getElementById('kpi-cbg-val').textContent = `${cbgKg.toFixed(1)} kg/d`;
+      document.getElementById('kpi-cbg-sub').textContent = `Replaces ${(cbgKg * 1.25).toFixed(1)} L diesel in fleet`;
+      document.getElementById('kpi-manure-val').textContent = formatMass(manureDaily, s.massUnit);
+      document.getElementById('kpi-savings-val').textContent = `₹ ${savingsL.toFixed(2)} L`;
+      let capex = 8.5;
+      if (s.feedstockKg < 1000) capex = 1.2 + (s.feedstockKg / 1000) * 7.3;
+      else if (s.feedstockKg > 1000) capex = 8.5 * Math.pow(s.feedstockKg / 1000, 0.72);
+      const monthlyHaulage = (s.feedstockKg * 30 * 2.05);
+      const monthlyManure = (manureDaily * 30 * 4.5);
+      const monthlyEnergy = (powerKW * 24 * 30 * 6.5) + (cbgKg * 30 * 75);
+      const totalMonthlyVal = monthlyHaulage + monthlyManure + monthlyEnergy;
+      const paybackMonths = Math.max(4.2, (capex * 100000) / Math.max(1000, totalMonthlyVal));
+      document.getElementById('fin-capex').textContent = `₹ ${capex.toFixed(2)} Lakhs`;
+      document.getElementById('fin-haulage').textContent = `₹ ${Math.round(monthlyHaulage).toLocaleString('en-IN')} / mo`;
+      document.getElementById('fin-manure').textContent = `₹ ${Math.round(monthlyManure).toLocaleString('en-IN')} / mo`;
+      document.getElementById('fin-energy').textContent = `₹ ${Math.round(monthlyEnergy).toLocaleString('en-IN')} / mo`;
+      document.getElementById('fin-total-monthly').textContent = `₹ ${(totalMonthlyVal / 100000).toFixed(2)} Lakhs / mo`;
+      document.getElementById('fin-payback-badge').textContent = `PAYBACK: ${paybackMonths.toFixed(1)} MONTHS`;
+      const co2eAnnual = annualMT * 1.73;
+      const carbonVal = (co2eAnnual * 850);
+      document.getElementById('fin-co2').textContent = `${Math.round(co2eAnnual).toLocaleString('en-IN')} MT CO₂e / yr`;
+      document.getElementById('fin-carbon-val').textContent = `₹ ${(carbonVal / 100000).toFixed(2)} Lakhs / yr`;
+      renderInspector(appState.activeHotspot);
+    }
+    function renderInspector(idx) {
+      const sub = plantSubsystems[idx] || plantSubsystems[0];
+      const s = appState;
+      document.getElementById('inspect-tag').textContent = sub.tag;
+      document.getElementById('inspect-code').textContent = sub.code;
+      document.getElementById('inspect-title').innerHTML = sub.title;
+      document.getElementById('inspect-desc').innerHTML = sub.desc;
+      document.getElementById('inspect-lead').innerHTML = sub.lead;
+      const tbody = document.getElementById('inspect-tbody');
+      tbody.innerHTML = sub.getMetrics(s).map(m => `
+        <tr>
+          <td><strong>${m.name}</strong></td>
+          <td style="color: var(--text-muted);">${m.spec}</td>
+          <td class="num" style="color: var(--kesar); font-weight: 600;">${m.live}</td>
+        </tr>
+      `).join('');
+    }
+    function setDispatch(ratio) {
+      appState.dispatchRatio = ratio;
+      document.getElementById('dispatch-slider').value = ratio;
+      document.getElementById('dispatch-num').value = ratio;
+      document.getElementById('btn-mode-chp').classList.toggle('active', ratio === 100);
+      document.getElementById('btn-mode-hybrid').classList.toggle('active', ratio === 50);
+      document.getElementById('btn-mode-cbg').classList.toggle('active-green', ratio === 0);
+      updateAll();
+    }
+    function onDispatchSlider(val) {
+      const ratio = parseInt(val, 10);
+      appState.dispatchRatio = ratio;
+      document.getElementById('dispatch-num').value = ratio;
+      document.getElementById('btn-mode-chp').classList.toggle('active', ratio === 100);
+      document.getElementById('btn-mode-hybrid').classList.toggle('active', ratio === 50);
+      document.getElementById('btn-mode-cbg').classList.toggle('active-green', ratio === 0);
+      updateAll();
+    }
+    function onFeedInput(val) {
+      let num = parseFloat(val);
+      if (isNaN(num)) num = 1000;
+      if (appState.massUnit === 'tpd') {
+        appState.feedstockKg = num * 1000;
+        document.getElementById('feed-slider').value = num;
+        document.getElementById('feed-num').value = num;
+      } else {
+        appState.feedstockKg = num;
+        document.getElementById('feed-slider').value = num;
+        document.getElementById('feed-num').value = num;
+      }
+      updateAll();
+    }
+    function onTempInput(val) {
+      const num = parseFloat(val);
+      appState.reactorTemp = num;
+      document.getElementById('temp-slider').value = num;
+      document.getElementById('temp-num').value = num;
+      updateAll();
+    }
+    function onH2SInput(val) {
+      const num = parseInt(val, 10);
+      appState.rawH2S = num;
+      document.getElementById('h2s-slider').value = num;
+      document.getElementById('h2s-num').value = num;
+      updateAll();
+    }
+    function setMassUnit(unit) {
+      appState.massUnit = unit;
+      document.getElementById('btn-unit-kg').classList.toggle('active', unit === 'kg');
+      document.getElementById('btn-unit-tpd').classList.toggle('active', unit === 'tpd');
+      const slider = document.getElementById('feed-slider');
+      const numInput = document.getElementById('feed-num');
+      if (unit === 'tpd') {
+        slider.min = '0.01';
+        slider.max = '100.0';
+        slider.step = '0.5';
+        slider.value = (appState.feedstockKg / 1000).toFixed(2);
+        numInput.min = '0.01';
+        numInput.max = '200.0';
+        numInput.step = '0.5';
+        numInput.value = (appState.feedstockKg / 1000).toFixed(2);
+      } else {
+        slider.min = '10';
+        slider.max = '100000';
+        slider.step = '50';
+        slider.value = appState.feedstockKg;
+        numInput.min = '10';
+        numInput.max = '200000';
+        numInput.step = '50';
+        numInput.value = appState.feedstockKg;
+      }
+      updateAll();
+    }
+    function loadScalePreset(kgVal) {
+      appState.feedstockKg = kgVal;
+      if (appState.massUnit === 'tpd') {
+        document.getElementById('feed-slider').value = (kgVal / 1000).toFixed(2);
+        document.getElementById('feed-num').value = (kgVal / 1000).toFixed(2);
+      } else {
+        document.getElementById('feed-slider').value = kgVal;
+        document.getElementById('feed-num').value = kgVal;
+      }
+      const badge = document.getElementById('scale-badge-head');
+      const kpiBadge = document.getElementById('kpi-scale-label');
+      if (kgVal === 50) {
+        badge.textContent = 'MICRO LAB / CANTEEN BURNER (50 KG/D)';
+        kpiBadge.textContent = 'MICRO DEMO SCALE (50 KG/D)';
+      } else if (kgVal === 1000) {
+        badge.textContent = 'SEVA PILOT SKID ARCHITECTURE (10x10 FT)';
+        kpiBadge.textContent = 'SEVA PILOT BASELINE (1 TPD / 1,000 KG/D)';
+      } else if (kgVal === 5000) {
+        badge.textContent = 'EUREKA! WARD HUB SCALE (5 TPD)';
+        kpiBadge.textContent = 'IIT BOMBAY EUREKA! SCALE (5 TPD)';
+      } else {
+        badge.textContent = 'BANAS-SUZUKI MEGA REFINERY (100 TPD)';
+        kpiBadge.textContent = 'BANAS-SUZUKI 100 TPD MEGA HUB';
+      }
+      updateAll();
+    }
+    function resetDefaults() {
+      loadScalePreset(1000);
+      setDispatch(50);
+      switchCamera(0);
+    }
+    function toggleParticles(chk) {
+      appState.particlesOn = chk;
+    }
+    function showTab(tabId) {
+      ['team', 'seva', 'inspire', 'pathways', 'onepage'].forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        const content = document.getElementById(`tab-content-${t}`);
+        if (btn) btn.classList.toggle('active', t === tabId);
+        if (content) content.style.display = (t === tabId) ? 'block' : 'none';
+      });
+    }
+    function exportDataCSV() {
+      const s = appState;
+      const csv = [
+        ['Platform', 'KAILAS Ecotech - Universal Resource Recovery'],
+        ['Team', 'The Real Engineers (SLRTCE Mumbai)'],
+        ['Mentor', 'Dr. Abhijeet Samantha (HOD Mechanical)'],
+        ['Daily Feedstock', s.feedstockKg.toFixed(1), 'kg/day'],
+        ['Equivalent Tonnes', (s.feedstockKg / 1000).toFixed(2), 'TPD'],
+        ['Annual Refuse Diverted', ((s.feedstockKg * 365) / 1000).toFixed(1), 'Metric Tons/yr'],
+        ['CHP Power Generated', calculatePowerKW(s).toFixed(1), 'kWe'],
+        ['Bio-CNG CBG Produced', calculateCBGkg(s).toFixed(1), 'kg/day'],
+        ['High-Grade Bio-Manure', (s.feedstockKg * 0.185).toFixed(1), 'kg/day'],
+        ['CO2e Abatement', ((s.feedstockKg * 365 * 1.73) / 1000).toFixed(0), 'MT CO2e/year'],
+        ['Annual Municipal Savings', `₹ ${calcAnnualSavings(s).toFixed(2)} Lakhs`, 'INR/year']
+      ];
+      const blob = new Blob([csv.map(r => r.join(',')).join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'KAILAS_Ecotech_Telemetry.csv';
+      a.click();
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) window.lucide.createIcons();
+      init3D();
+      updateAll();
+      switchCamera(0);
+    });
+  </script>
+</body>
+</html>
